@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
   is_deleted: { type: Boolean, default: false, required: true },
 
   password: { type: String, required: true },
+  reported_issues: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
+  assigned_issues: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
 });
 
 const User = mongoose.model("User", userSchema);

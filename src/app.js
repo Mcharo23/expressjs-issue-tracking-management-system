@@ -25,10 +25,15 @@ app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "..", "/public")));
 
 // service routes
+// app.use("/", require("./routes/root"));
+
 app.use("/", require("./routes/api/auth"));
 
 app.use(verifyJWT);
 app.use("/user", require("./routes/api/user"));
+app.use("/project", require("./routes/api/project"));
+app.use("/issue-type", require("./routes/api/issue-type"));
+app.use("/issue", require("./routes/api/issue"));
 
 app.all("*", (req, res) => {
   res.status(404);

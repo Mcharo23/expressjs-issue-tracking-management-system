@@ -16,6 +16,12 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  is_deleted: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  issues: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
 });
 
 const Project = mongoose.model("Project", projectSchema);
