@@ -49,6 +49,10 @@ const validateUser = async (req, res) => {
   } catch (error) {
     if (error.message === "Invalid credentials") {
       res.status(401).json({ detail: "Invalid credentials" });
+    } else if (error.message === "inactive account") {
+      res.status(401).json({ detail: "Yout account is inactive" });
+    } else if (error.message === "user deleted") {
+      res.status(401).json({ detail: "Your account has been frozen" });
     } else {
       console.error(error);
       res.status(400).send(error);
@@ -58,6 +62,19 @@ const validateUser = async (req, res) => {
 
 const deleteUser = (req, res) => {};
 
+const activateUser = async (req, res) => {
+  try {
+    const user = await userService.activateUser(req.body.user_id);
+    res.status(200).json(user);
+  } catch (error) {
+    if (error.message === "not found") {
+      res.status(404).json({ detail: "User not found" });
+    } else {
+      res.status(400).send(error);
+    }
+  }
+};
+
 module.exports = {
   getAllUsers,
   createUser,
@@ -66,4 +83,5 @@ module.exports = {
   updateUserStatus,
   updateUserPassword,
   validateUser,
+  activateUser,
 };

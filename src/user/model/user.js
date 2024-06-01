@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: [USER_ROLES.ADMIN, USER_ROLES.DEVELOPER],
+    default: USER_ROLES.DEVELOPER,
     required: true,
   },
   is_active: { type: Boolean, default: false, required: true },

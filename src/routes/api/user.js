@@ -7,7 +7,8 @@ const ROLES = require("../../utils/uer-role");
 router
   .route("/")
   .get(verifyRoles(ROLES.ADMIN), userController.getAllUsers)
-  .post(userController.createUser);
+  .post(userController.createUser)
+  .patch(verifyRoles(ROLES.ADMIN), userController.activateUser);
 
 router.route("/get-user/:id").post(userController.getUser);
 

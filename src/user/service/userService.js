@@ -1,17 +1,18 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { DEVELOPER } = require("../../utils/uer-role");
 
 const saltRounds = 10;
 
 const getAllUsers = async () => {
-  return await User.find({}, { password: 0 });
+  return await User.find({ role: DEVELOPER }, { password: 0 });
 };
 
 const createUser = async (userData) => {
   const user = new User(userData);
   const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(user.password, salt);
+  const hash = bcrypt.hashSync(user.last_name, salt);
 
   user.password = hash;
 
@@ -50,6 +51,14 @@ const validateUser = async (email, password) => {
     throw new Error("Invalid credentials");
   }
 
+  if (user.is_deleted) {
+    throw new Error("user deleted");
+  }
+
+  if (!user.is_active) {
+    throw new Error("inactive account");
+  }
+
   const accessToken = jwt.sign(
     {
       user_id: user.user_id,
@@ -67,6 +76,27 @@ const validateUser = async (email, password) => {
 
 const deleteUser = (req, res) => {};
 
+const activateUser = async (user_id) => {
+  try {
+    const user = await User.findOne({ user_id: user_id }).exec();
+
+    const message = user.is_active
+      ? "successfully deactivated"
+      : "successfully activated";
+
+    if (!user) {
+      throw new Error("not found");
+    }
+
+    user.is_active = !user.is_active;
+    await user.save();
+
+    return { detail: message };
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   createUser,
@@ -75,4 +105,5 @@ module.exports = {
   updateUserStatus,
   updateUserPassword,
   validateUser,
+  activateUser,
 };
