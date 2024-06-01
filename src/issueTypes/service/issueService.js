@@ -1,4 +1,5 @@
 const Issue = require("../model/issue");
+const Comment = require("../model/comment");
 const userService = require("../../user/service/userService");
 const projectService = require("../../project/service/projectService");
 const issueTypeService = require("./issue-type");
@@ -44,11 +45,12 @@ const getAllIssueByAssigneeId = async (assignee_id) => {
   }
 };
 
-const assignIssueToDeveloper = async (issue_id, assignee_id, issue_type_id) => {
+const assignIssueToDeveloper = async (issue_id, assignee_id) => {
   const update = {
     assignee_id: assignee_id,
-    issue_type_id: issue_type_id,
   };
+
+  await userService.getUser(assignee_id);
 
   try {
     const result = await Issue.updateOne({ issue_id: issue_id }, update).exec();
@@ -62,20 +64,54 @@ const assignIssueToDeveloper = async (issue_id, assignee_id, issue_type_id) => {
   }
 };
 
-const updateIssueStatus = async (assignee_id, issue_id, status) => {
+const updateIssueStatus = async (
+  assignee_id,
+  issue_id,
+  commentText,
+  status
+) => {
   try {
-    const issue = await Issue.find({ issue_id: issue_id }).exec();
+    const issue = await Issue.findOne({ issue_id: issue_id }).exec();
 
     if (issue.assignee_id !== assignee_id) {
       throw new Error("unauthorized");
     }
 
-    status.status = status;
+    if (!STATUS.includes(status)) {
+      return { detail: "Invalid status value." };
+    }
 
+    const comment = new Comment({
+      issue_id: issue_id,
+      user_id: assignee_id,
+      comment: commentText,
+    });
+
+    await comment.save();
+
+    issue.status = status;
+    issue.comments.push(comment.comment_id);
     await issue.save();
-    return { detail: "Status saccessfully updated" };
+
+    return { detail: "Status successfully updated and comment added" };
   } catch (error) {
-    throw new Error(`Error while updating issue status ${error.message}`);
+    throw new Error(error);
+  }
+};
+
+const getCommentByIssueId = async (issue_id) => {
+  try {
+    const issue = await Issue.findOne({ issue_id: issue_id }).exec();
+
+    if (!issue) {
+      throw new Error("Issue not found");
+    }
+
+    const comments = await Comment.find({ issue_id: issue_id }).exec();
+    
+    return comments;
+  } catch (error) {
+    throw new Error(error);
   }
 };
 
@@ -85,4 +121,5 @@ module.exports = {
   getAllIssueByAssigneeId,
   assignIssueToDeveloper,
   updateIssueStatus,
+  getCommentByIssueId,
 };

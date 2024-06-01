@@ -57,7 +57,7 @@ const issueSchema = new mongoose.Schema({
     default: Date.now,
     required: true,
   },
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+  comments: [{ type: String, ref: "Comment" }],
 });
 
 issueSchema.pre("save", function (next) {

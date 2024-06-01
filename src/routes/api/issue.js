@@ -6,24 +6,31 @@ const ROLES = require("../../utils/uer-role");
 
 router
   .route("/")
-  .get(issueController.getAllIssues)
+  .get(verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER), issueController.getAllIssues)
   .post(verifyRoles(ROLES.ADMIN), issueController.createIssue);
 
 router
-  .route("/:id")
+  .route("/assignee")
   .get(
-    verifyRoles([ROLES.ADMIN, ROLES.DEVELOPER]),
+    verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),
     issueController.getAllIssueByAssigneeId
   );
 router
   .route("/assign")
-  .post(verifyRoles([ROLES.ADMIN]), issueController.assignIssueToDeveloper);
+  .post(verifyRoles(ROLES.ADMIN), issueController.assignIssueToDeveloper);
 
 router
   .route("/status")
   .post(
-    verifyRoles([ROLES.ADMIN, ROLES.DEVELOPER]),
+    verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),
     issueController.updateIssueStatus
+  );
+
+router
+  .route("/comment/:id")
+  .get(
+    verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),
+    issueController.getCommentByIssueId
   );
 
 module.exports = router;
