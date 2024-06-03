@@ -8,7 +8,7 @@ const verifyJWT = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   jwt.verify(token, "jwt", (err, decoded) => {
-    if (err) return res.status(403).json({ detail: "Expired/invalid token" });
+    if (err) return res.status(401).json({ detail: "Expired/invalid token" });
     req.user_id = decoded.user_id;
     req.role = decoded.role;
     next();

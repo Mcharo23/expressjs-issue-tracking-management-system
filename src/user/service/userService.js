@@ -67,7 +67,7 @@ const validateUser = async (email, password) => {
       role: user.role,
     },
     "jwt",
-    { expiresIn: "300000s" },
+    { expiresIn: "120s" },
     { algorithm: "HS256" }
   );
 
