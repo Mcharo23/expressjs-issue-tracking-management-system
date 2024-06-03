@@ -40,7 +40,6 @@ const getIssueByName = async (name) => {
   }
 
   return issue;
- 
 };
 
 module.exports = {

@@ -30,8 +30,58 @@ const createIssue = async (data) => {
 const getAllIssues = async () => {
   try {
     const issues = await Issue.find().exec();
-    return issues;
+
+    const populatedIssues = await Promise.all(
+      issues.map(async (issue) => {
+        let projectName = null;
+        let developerName = null;
+        let issueTypeName = null;
+
+        try {
+          const project = await projectService.getProjectById(issue.project_id);
+          projectName = project ? project.project_name : null;
+        } catch (projectError) {
+          console.error(
+            `Error fetching project for issue: ${projectError.message}`
+          );
+        }
+
+        try {
+          const developer = issue.assignee_id
+            ? await userService.getUser(issue.assignee_id)
+            : null;
+          developerName = developer
+            ? developer.first_name.concat(" ", developer.last_name)
+            : null;
+        } catch (userError) {
+          console.error(
+            `Error fetching developer for issue: ${userError.message}`
+          );
+        }
+
+        try {
+          const issueType = await issueTypeService.getIssueById(
+            issue.issue_type_id
+          );
+          issueTypeName = issueType ? issueType.name : null;
+        } catch (issueTypeError) {
+          console.error(
+            `Error fetching issue type for issue: ${issueTypeError.message}`
+          );
+        }
+
+        return {
+          ...issue.toObject(),
+          project_name: projectName,
+          developer: developerName,
+          issue_type: issueTypeName,
+        };
+      })
+    );
+
+    return populatedIssues;
   } catch (error) {
+    console.log(error);
     throw new Error(`Error while getting issues: ${error.message}`);
   }
 };
@@ -108,7 +158,7 @@ const getCommentByIssueId = async (issue_id) => {
     }
 
     const comments = await Comment.find({ issue_id: issue_id }).exec();
-    
+
     return comments;
   } catch (error) {
     throw new Error(error);
