@@ -67,14 +67,32 @@ const validateUser = async (email, password) => {
       role: user.role,
     },
     "jwt",
-    { expiresIn: "120s" },
+    { expiresIn: "6000s" },
     { algorithm: "HS256" }
   );
 
   return { token: accessToken };
 };
 
-const deleteUser = (req, res) => {};
+const deleteUser = async (user_id) => {
+  try {
+    const user = await User.findOne({ user_id: user_id }).exec();
+
+    if (!user) {
+      throw new Error("not found");
+    }
+    const message = user.is_deleted
+      ? "Successfully deleted"
+      : "successfully account restored";
+
+      user.is_deleted = !user.is_deleted;
+      await user.save();
+
+      return {detail: message};
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 
 const activateUser = async (user_id) => {
   try {

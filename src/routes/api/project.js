@@ -6,9 +6,9 @@ const ROLES = require("../../utils/uer-role");
 
 router
   .route("/")
-  .get(projectController.getAllProjects)
+  .get(verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),projectController.getAllProjects)
   .post(verifyRoles(ROLES.ADMIN), projectController.createProject);
 
-router.route("/:id").get(projectController.getProjectById);
+router.route("/:id").get(verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),projectController.getProjectById);
 
 module.exports = router;

@@ -60,7 +60,18 @@ const validateUser = async (req, res) => {
   }
 };
 
-const deleteUser = (req, res) => {};
+const deleteUser = async (req, res) => {
+  try {
+    const result = await userService.deleteUser(req.body.user_id);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error.message === "not found") {
+      res.status(404).json({detail: "User not found"});
+    } else {
+      res.status(404).send(error);
+    }
+  }
+};
 
 const activateUser = async (req, res) => {
   try {

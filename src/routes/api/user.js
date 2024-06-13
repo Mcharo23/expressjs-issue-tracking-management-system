@@ -7,14 +7,12 @@ const ROLES = require("../../utils/uer-role");
 router
   .route("/")
   .get(verifyRoles(ROLES.ADMIN), userController.getAllUsers)
-  .post(userController.createUser)
-  .patch(verifyRoles(ROLES.ADMIN), userController.activateUser);
+  .post(verifyRoles(ROLES.ADMIN), userController.createUser)
+  .patch(verifyRoles(ROLES.ADMIN), userController.activateUser)
+  .delete(verifyRoles(ROLES.ADMIN), userController.deleteUser)
 
 router.route("/get-user/:id").post(userController.getUser);
 
-router.route("/delete-user/:id").post(userController.deleteUser);
-router.route("/user-status/:id").post(userController.updateUserStatus);
-router.route("/update-password/:id").post(userController.createUser);
-router.route("/all-users").post(userController.getAllUsers);
+router.route("/update-password/:id").post(userController.updateUserPassword);
 
 module.exports = router;
