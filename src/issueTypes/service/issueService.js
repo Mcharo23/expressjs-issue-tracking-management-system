@@ -89,7 +89,7 @@ const getAllIssues = async () => {
 const getAllIssueByAssigneeId = async (assignee_id) => {
   try {
     const issues = await Issue.find({ assignee_id: assignee_id }).exec();
-    
+
     const populatedIssues = await Promise.all(
       issues.map(async (issue) => {
         let projectName = null;
@@ -171,6 +171,10 @@ const updateIssueStatus = async (
 ) => {
   try {
     const issue = await Issue.findOne({ issue_id: issue_id }).exec();
+
+    if (!issue) {
+      throw new Error("Issue not found");
+    }
 
     if (issue.assignee_id !== assignee_id) {
       throw new Error("unauthorized");

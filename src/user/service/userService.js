@@ -67,7 +67,7 @@ const validateUser = async (email, password) => {
       role: user.role,
     },
     "jwt",
-    { expiresIn: "6000s" },
+    { expiresIn: "60s" },
     { algorithm: "HS256" }
   );
 
@@ -85,10 +85,10 @@ const deleteUser = async (user_id) => {
       ? "Successfully deleted"
       : "successfully account restored";
 
-      user.is_deleted = !user.is_deleted;
-      await user.save();
+    user.is_deleted = !user.is_deleted;
+    await user.save();
 
-      return {detail: message};
+    return { detail: message };
   } catch (error) {
     throw new Error(error);
   }

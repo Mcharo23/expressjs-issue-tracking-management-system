@@ -69,6 +69,8 @@ const updateIssueStatus = async (req, res) => {
       res
         .status(401)
         .json({ detail: "You have no permission to make changes" });
+    } else if (error.message === "Error: Issue not found") {
+      res.status(404).json({ detail: "Issue not found" });
     } else {
       console.log(error.message);
       res.status(400).send(error);
