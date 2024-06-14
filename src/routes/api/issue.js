@@ -21,7 +21,7 @@ router
 
 router
   .route("/status")
-  .post(
+  .put(
     verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),
     issueController.updateIssueStatus
   );
