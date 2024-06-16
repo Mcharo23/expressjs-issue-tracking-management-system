@@ -12,7 +12,7 @@ const getAllUsers = async () => {
 const createUser = async (userData) => {
   const user = new User(userData);
   const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(user.last_name.toLowerCase().trim(), salt);
+  const hash = bcrypt.hashSync(user.last_name.toUpperCase().trim(), salt);
 
   user.password = hash;
 
