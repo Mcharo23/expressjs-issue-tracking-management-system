@@ -24,7 +24,24 @@ const createUser = async (req, res) => {
 
 const updateUserStatus = (req, res) => {};
 
-const updateUserPassword = (req, res) => {};
+const updateUserPassword = async (req, res) => {
+  try {
+    const result = await userService.updateUserPassword(
+      req.user_id,
+      req.body.old_password,
+      req.body.new_password
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    if (error.message === "not found") {
+      res.status(404).json({ detail: "User not found" });
+    } else if (error.message === "invalid password") {
+      res.status(404).json({ detail: "Wrong old password" });
+    } else {
+      res.status(400).send(error);
+    }
+  }
+};
 
 const getUser = async (req, res) => {
   try {
@@ -66,7 +83,7 @@ const deleteUser = async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     if (error.message === "not found") {
-      res.status(404).json({detail: "User not found"});
+      res.status(404).json({ detail: "User not found" });
     } else {
       res.status(404).send(error);
     }

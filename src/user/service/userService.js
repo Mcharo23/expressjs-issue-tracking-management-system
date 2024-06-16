@@ -12,7 +12,7 @@ const getAllUsers = async () => {
 const createUser = async (userData) => {
   const user = new User(userData);
   const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(user.last_name, salt);
+  const hash = bcrypt.hashSync(user.last_name.toLowerCase().trim(), salt);
 
   user.password = hash;
 
@@ -24,9 +24,40 @@ const createUser = async (userData) => {
   }
 };
 
-const updateUserStatus = (req, res) => {};
+const updateUserStatus = () => {};
 
-const updateUserPassword = (req, res) => {};
+const updateUserPassword = async (user_id, old_password, new_password) => {
+  try {
+    const user = await User.findOne({ user_id: user_id });
+
+    if (!user) {
+      throw new Error("not found");
+    }
+
+    const match = await bcrypt.compare(old_password, user.password);
+
+    if (!match) {
+      throw new Error("invalid password");
+    }
+
+    const identical = await bcrypt.compare(new_password, user.password);
+
+    if (identical) {
+      return { detail: "Old password and new password are identical" };
+    }
+
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(new_password, salt);
+
+    user.password = hash;
+
+    await user.save();
+
+    return { detail: "successfully password updated." };
+  } catch (error) {
+    throw error;
+  }
+};
 
 const getUser = async (id) => {
   const user = await User.findOne({ user_id: id }).select("-password").exec();
@@ -67,7 +98,7 @@ const validateUser = async (email, password) => {
       role: user.role,
     },
     "jwt",
-    { expiresIn: "60s" },
+    { expiresIn: "6000s" },
     { algorithm: "HS256" }
   );
 

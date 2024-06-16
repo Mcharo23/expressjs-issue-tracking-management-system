@@ -9,7 +9,11 @@ router
   .get(verifyRoles(ROLES.ADMIN), userController.getAllUsers)
   .post(verifyRoles(ROLES.ADMIN), userController.createUser)
   .put(verifyRoles(ROLES.ADMIN), userController.activateUser)
-  .delete(verifyRoles(ROLES.ADMIN), userController.deleteUser);
+  .delete(verifyRoles(ROLES.ADMIN), userController.deleteUser)
+  .patch(
+    verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),
+    userController.updateUserPassword
+  );
 
 router.route("/get-user/:id").post(userController.getUser);
 
