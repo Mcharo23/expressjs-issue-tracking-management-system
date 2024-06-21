@@ -1,5 +1,9 @@
 const Issue = require("../model/issue");
 const Comment = require("../model/comment");
+const Project = require("../../project/model/project");
+const IssueType = require("../../issueTypes/model/issue-type");
+const User = require("../../user/model/user");
+
 const userService = require("../../user/service/userService");
 const projectService = require("../../project/service/projectService");
 const issueTypeService = require("./issue-type");
@@ -22,6 +26,63 @@ const createIssue = async (data) => {
     await newIssue.save();
 
     return { detail: "Issue created successfully!" };
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const getIssue = async (issue_id) => {
+  try {
+    const issue = await Issue.findOne({ issue_id: issue_id }).exec();
+
+    if (!issue) {
+      throw new Error("Issue not found");
+    }
+
+    const project = await Project.findOne({
+      project_id: issue.project_id,
+    })
+      .select("-issues")
+      .exec();
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    const issueType = await IssueType.findOne({
+      issue_type_id: issue.issue_type_id,
+    }).exec();
+
+    if (!issueType) {
+      throw new Error("issue type not found");
+    }
+
+    let developer = null;
+    if (issue.assignee_id) {
+      developer = await User.findOne({ user_id: issue.assignee_id })
+        .select("-password")
+        .select("-assigned_issues")
+        .select("-reported_issues")
+        .exec();
+    }
+
+    const comments = await Comment.find({ issue_id: issue_id }).exec();
+
+    const populatedIssue = {
+      issue_id: issue.issue_id,
+      project: project,
+      issue_type: issueType,
+      summary: issue.summary,
+      description: issue.description,
+      priority: issue.priority,
+      status: issue.status,
+      developer: developer,
+      created_at: issue.created_at,
+      updated_at: issue.updated_at,
+      comments: comments,
+    };
+
+    return populatedIssue;
   } catch (error) {
     throw new Error(error);
   }
@@ -81,7 +142,6 @@ const getAllIssues = async () => {
 
     return populatedIssues;
   } catch (error) {
-    console.log(error);
     throw new Error(`Error while getting issues: ${error.message}`);
   }
 };
@@ -225,4 +285,5 @@ module.exports = {
   assignIssueToDeveloper,
   updateIssueStatus,
   getCommentByIssueId,
+  getIssue,
 };

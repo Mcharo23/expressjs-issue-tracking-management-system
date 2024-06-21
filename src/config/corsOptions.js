@@ -1,4 +1,9 @@
-const whitelist = ["http://localhost:3000", "http://localhost:5173", "http://192.168.1.151:5173"];
+const whitelist = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://192.168.1.151:5173",
+  "http://172.16.130.165:5173",
+];
 
 const corsOptions = {
   origin: (origin, callback) => {

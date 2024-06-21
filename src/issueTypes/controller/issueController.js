@@ -1,3 +1,4 @@
+const { logEvents } = require("../../middleware/logEvents");
 const issueService = require("../service/issueService");
 
 const createIssue = async (req, res) => {
@@ -24,6 +25,23 @@ const getAllIssues = async (req, res) => {
     res.status(200).json(issues);
   } catch (error) {
     res.status(400).send(error);
+  }
+};
+
+const getIssue = async (req, res, next) => {
+  try {
+    const issue = await issueService.getIssue(req.params.issue_id);
+    res.status(200).json(issue);
+  } catch (error) {
+    logEvents(`${error.name}: ${error.message}`, "errorLog.txt");
+
+    if (error.message === "not found") {
+      res.status(404).json({ detail: "Issue Not Found" });
+    } else {
+      res.status(400).json({ detail: error.message });
+    }
+
+    next(error);
   }
 };
 
@@ -99,4 +117,5 @@ module.exports = {
   assignIssueToDeveloper,
   updateIssueStatus,
   getCommentByIssueId,
+  getIssue,
 };

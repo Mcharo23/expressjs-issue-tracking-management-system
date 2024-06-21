@@ -10,6 +10,10 @@ router
   .post(verifyRoles(ROLES.ADMIN), issueController.createIssue);
 
 router
+  .route("/progress/:issue_id")
+  .get(verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER), issueController.getIssue);
+
+router
   .route("/assignee")
   .get(
     verifyRoles(ROLES.ADMIN, ROLES.DEVELOPER),
